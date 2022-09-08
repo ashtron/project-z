@@ -14,15 +14,24 @@ describe("ProjectZ contract", function() {
 
     it("Can create a new agreement", async function() {
         const { ProjectZ, signer1, signer2 } = await loadFixture(deployTokenFixture)
-        
-        await ProjectZ.createAgreement(
+
+        const [addr1, addr2, price, sellerYieldPercentage, expirationBlock] = [
             signer1.address,
             signer2.address,
             1,
             50,
             21
-        )
+        ]
+        
+        await ProjectZ.createAgreement(addr1, addr2, price, sellerYieldPercentage, expirationBlock)
+        const agreement = await ProjectZ.agreements(0)
 
-        console.log(await ProjectZ.agreements(0))
+        expect(agreement.buyer).to.equal(signer1.address)
+        expect(agreement.seller).to.equal(signer2.address)
+        expect(agreement.buyerApproved).to.equal(false)
+        expect(agreement.sellerApproved).to.equal(false)
+        expect(agreement.price).to.equal(1)
+        expect(agreement.sellerYieldPercentage).to.equal(50)
+        expect(agreement.expirationBlock).to.equal(21)
     })
 })
