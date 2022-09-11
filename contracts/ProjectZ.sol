@@ -20,7 +20,16 @@ contract ProjectZ {
     constructor() {}
 
     function createAgreement(address buyer, address seller, uint256 price, uint8 sellerYieldPercentage, uint256 numBlocks) public {
-        Agreement memory newAgreement = Agreement(buyer, seller, false, false, price, sellerYieldPercentage, numBlocks);
+        bool buyerApproved = false;
+        bool sellerApproved = false;
+
+        if (msg.sender == buyer) {
+            buyerApproved = true;
+        } else if (msg.sender == seller) {
+            sellerApproved = true;
+        }
+
+        Agreement memory newAgreement = Agreement(buyer, seller, buyerApproved, sellerApproved, price, sellerYieldPercentage, numBlocks);
         agreements.push(newAgreement);
     }
 }
