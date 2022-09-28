@@ -9,8 +9,8 @@ contract ProjectZ {
     struct Agreement {
         address buyer;
         address seller;
-        bool buyerApproved;
-        bool sellerApproved;
+        bool buyerSigned;
+        bool sellerSigned;
         uint256 price;
         uint8 sellerYieldPercentage;
         uint256 expirationBlock;
@@ -18,31 +18,33 @@ contract ProjectZ {
 
     Agreement[] public agreements;
 
-    modifier correctValueSent(address buyer, uint256 price) {
-        if (msg.sender == buyer) {
-            require(msg.value == price, "Wrong value sent.");
-        }
+    modifier onlyBuyer(address buyer) {
+        require(msg.sender == buyer, "Only the Buyer can create a new Agreement.");
         _;
     }
 
-    modifier onlyBuyerOrSeller(address buyer, address seller) {
-        require((msg.sender == buyer || msg.sender == seller), "Only the Buyer or Seller can interact with an Agreement.");
+    modifier onlySeller(address seller) {
+        require(msg.sender == seller, "Only the Seller can sign an Agreement.");
+        _;
+    }
+
+    modifier fundedCorrectly(address buyer, uint256 price) {
+        require(msg.value == price, "Incorrect amount sent for funding.");
         _;
     }
 
     constructor() {}
 
-    function createAgreement(address buyer, address seller, uint256 price, uint8 sellerYieldPercentage, uint256 numBlocks) public payable correctValueSent(buyer, price) onlyBuyerOrSeller(buyer, seller) {
-        bool buyerApproved = false;
-        bool sellerApproved = false;
-
-        if (msg.sender == buyer) {
-            buyerApproved = true;
-        } else if (msg.sender == seller) {
-            sellerApproved = true;
-        }
-
-        Agreement memory newAgreement = Agreement(buyer, seller, buyerApproved, sellerApproved, price, sellerYieldPercentage, numBlocks);
+    function createAgreement(address buyer, address seller, uint256 price, uint8 sellerYieldPercentage, uint256 numBlocks) public payable onlyBuyer(buyer) fundedCorrectly(buyer, price) {
+        Agreement memory newAgreement = Agreement(buyer, seller, true, false, price, sellerYieldPercentage, numBlocks);
         agreements.push(newAgreement);
+    }
+
+    function signAgreement(uint256 index) public onlySeller(msg.sender) {
+        Agreement storage agreement = agreements[index];
+
+        require(msg.sender == agreement.seller, "Only the Seller can sign an Agreement.");
+
+        agreement.sellerSigned = true;
     }
 }
