@@ -25,9 +25,14 @@ contract ProjectZ {
         _;
     }
 
+    modifier onlyBuyerOrSeller(address buyer, address seller) {
+        require((msg.sender == buyer || msg.sender == seller), "Only the Buyer or Seller can interact with an Agreement.");
+        _;
+    }
+
     constructor() {}
 
-    function createAgreement(address buyer, address seller, uint256 price, uint8 sellerYieldPercentage, uint256 numBlocks) public payable correctValueSent(buyer, price) {
+    function createAgreement(address buyer, address seller, uint256 price, uint8 sellerYieldPercentage, uint256 numBlocks) public payable correctValueSent(buyer, price) onlyBuyerOrSeller(buyer, seller) {
         bool buyerApproved = false;
         bool sellerApproved = false;
 

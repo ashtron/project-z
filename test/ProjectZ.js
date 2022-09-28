@@ -3,13 +3,13 @@ const { expect } = require("chai")
 
 describe("ProjectZ contract", function() {
     async function deployTokenFixture() {
-        const [signer1, signer2] = await ethers.getSigners()
+        const [signer1, signer2, signer3] = await ethers.getSigners()
 
         const ProjectZFactory = await ethers.getContractFactory("ProjectZ")
         const ProjectZ = await ProjectZFactory.deploy()
         await ProjectZ.deployed()
 
-        return { ProjectZ, signer1, signer2 }
+        return { ProjectZ, signer1, signer2, signer3 }
     }
 
     it("Can create a new Agreement", async function() {
@@ -53,6 +53,23 @@ describe("ProjectZ contract", function() {
         const secondAgreement = await ProjectZ.agreements(1)
 
         expect(await secondAgreement.sellerApproved).to.equal(true)
+    })
+
+    it("Only allows the buyer or the seller to interact with the Agreeement", async function() {
+        const { ProjectZ, signer1, signer2, signer3 } = await loadFixture(deployTokenFixture)
+
+        const [addr1, addr2, price, sellerYieldPercentage, expirationBlock] = [
+            signer1.address,
+            signer2.address,
+            ethers.utils.parseUnits("1", "ether"),
+            50,
+            21
+        ]
+
+        await ProjectZ.createAgreement(addr1, addr2, price, sellerYieldPercentage, expirationBlock, { value: ethers.utils.parseUnits("1", "ether") })
+        const firstAgreement = await ProjectZ.agreements(0)
+
+        await expect(ProjectZ.connect(signer3).createAgreement(addr1, addr2, price, sellerYieldPercentage, expirationBlock)).to.be.revertedWith("Only the Buyer or Seller can interact with an Agreement.")
     })
 })
 
