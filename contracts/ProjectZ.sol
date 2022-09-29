@@ -36,7 +36,7 @@ contract ProjectZ {
     constructor() {}
 
     function createAgreement(address buyer, address seller, uint256 price, uint8 sellerYieldPercentage, uint256 numBlocks) public payable onlyBuyer(buyer) fundedCorrectly(buyer, price) {
-        Agreement memory newAgreement = Agreement(buyer, seller, true, false, price, sellerYieldPercentage, numBlocks);
+        Agreement memory newAgreement = Agreement(buyer, seller, true, false, price, sellerYieldPercentage, block.timestamp + numBlocks);
         agreements.push(newAgreement);
     }
 

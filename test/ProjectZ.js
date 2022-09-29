@@ -1,5 +1,6 @@
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers")
 const { expect } = require("chai")
+const { ethers } = require("hardhat")
 
 describe("ProjectZ contract", function() {
     async function deployTokenFixture() {
@@ -32,7 +33,8 @@ describe("ProjectZ contract", function() {
         expect(agreement.buyerSigned).to.equal(true)
         expect(agreement.sellerSigned).to.equal(false)
         expect(agreement.sellerYieldPercentage).to.equal(50)
-        expect(agreement.expirationBlock).to.equal(21)
+        const latestBlock = await hre.ethers.provider.getBlock("latest")
+        expect(agreement.expirationBlock).to.equal(latestBlock.timestamp + 21)
     })
 
     it("Only allows the buyer to create a new Agreement", async function() {
