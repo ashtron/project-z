@@ -107,4 +107,47 @@ describe("ProjectZ contract", function() {
         await expect(ProjectZ.signAgreement(0)).to.be.revertedWith("Only the Seller can sign an Agreement.")
         await expect(ProjectZ.connect(signer3).signAgreement(0)).to.be.revertedWith("Only the Seller can sign an Agreement.")
     })
+
+    // it("Allows the Seller to claim funds after the expiration block", async function() {
+    //     const { ProjectZ, signer1, signer2 } = await loadFixture(deployTokenFixture)
+
+    //     const [addr1, addr2, price, sellerYieldPercentage, expirationBlock] = [
+    //         signer1.address,
+    //         signer2.address,
+    //         ethers.utils.parseUnits("1", "ether"),
+    //         50,
+    //         21
+    //     ]
+
+    //     await ProjectZ.createAgreement(addr1, addr2, price, sellerYieldPercentage, expirationBlock, { value: ethers.utils.parseUnits("1", "ether") })
+    //     let agreement = await ProjectZ.agreements(0)
+
+    //     const initialSellerBalance = await signer2.getBalance()
+
+    //     const numBlocks = 21
+    //     await hre.network.provider.send("hardhat_mine", [`0x${numBlocks.toString(16)}`])
+    //     await ProjectZ.connect(signer2).claimFunds(0)
+
+    //     const newSellerBalance = await signer2.getBalance()
+    //     const difference = newSellerBalance - initialSellerBalance
+    //     console.log(difference)
+        
+    //     // expect(difference).to.equal(price)
+    // })
+
+    it("Does not allow the Seller to claim funds before the expiration block", async function() {
+        const { ProjectZ, signer1, signer2 } = await loadFixture(deployTokenFixture)
+
+        const [addr1, addr2, price, sellerYieldPercentage, expirationBlock] = [
+            signer1.address,
+            signer2.address,
+            ethers.utils.parseUnits("1", "ether"),
+            50,
+            21
+        ]
+
+        await ProjectZ.createAgreement(addr1, addr2, price, sellerYieldPercentage, expirationBlock, { value: ethers.utils.parseUnits("1", "ether") })
+
+        await expect(ProjectZ.connect(signer2).claimFunds(0)).to.be.revertedWith("This Agreement has not expired yet.")
+    })
 })

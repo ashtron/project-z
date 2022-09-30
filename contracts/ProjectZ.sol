@@ -8,7 +8,7 @@ import "hardhat/console.sol";
 contract ProjectZ {
     struct Agreement {
         address buyer;
-        address seller;
+        address payable seller;
         bool buyerSigned;
         bool sellerSigned;
         uint256 price;
@@ -35,7 +35,7 @@ contract ProjectZ {
 
     constructor() {}
 
-    function createAgreement(address buyer, address seller, uint256 price, uint8 sellerYieldPercentage, uint256 numBlocks) public payable onlyBuyer(buyer) fundedCorrectly(buyer, price) {
+    function createAgreement(address buyer, address payable seller, uint256 price, uint8 sellerYieldPercentage, uint256 numBlocks) public payable onlyBuyer(buyer) fundedCorrectly(buyer, price) {
         Agreement memory newAgreement = Agreement(buyer, seller, true, false, price, sellerYieldPercentage, block.timestamp + numBlocks);
         agreements.push(newAgreement);
     }
@@ -46,5 +46,14 @@ contract ProjectZ {
         require(msg.sender == agreement.seller, "Only the Seller can sign an Agreement.");
 
         agreement.sellerSigned = true;
+    }
+
+    function claimFunds(uint256 index) public {
+        Agreement storage agreement = agreements[index];
+
+        require(msg.sender == agreement.seller, "Only the Seller can claim funds from an Agreement.");
+        require(block.timestamp >= agreement.expirationBlock, "This Agreement has not expired yet.");
+
+        agreement.seller.transfer(agreement.price);
     }
 }
