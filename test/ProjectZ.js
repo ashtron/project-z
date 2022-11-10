@@ -150,4 +150,18 @@ describe("ProjectZ contract", function() {
 
         await expect(ProjectZ.connect(signer2).claimFunds(0)).to.be.revertedWith("This Agreement has not expired yet.")
     })
+
+    it("Can supply WETH to Aave", async function() {
+        const { ProjectZ, signer1, signer2 } = await loadFixture(deployTokenFixture)
+
+        const [addr1, addr2, price, sellerYieldPercentage, expirationBlock] = [
+            signer1.address,
+            signer2.address,
+            ethers.utils.parseUnits("1", "ether"),
+            50,
+            21
+        ]
+
+        await ProjectZ.supplyETH("0x368EedF3f56ad10b9bC57eed4Dac65B26Bb667f6", "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", ProjectZ.address, 21)
+    })
 })
