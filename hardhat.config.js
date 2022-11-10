@@ -1,9 +1,13 @@
 require("@nomicfoundation/hardhat-toolbox")
 require('dotenv').config()
 
+task("envtest", async (args, hre) => {
+  console.log("Hello!")
+})
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.9",
+  solidity: "0.8.10",
   networks: {
     hardhat: {
       forking: {

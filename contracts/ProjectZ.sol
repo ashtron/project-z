@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
-import "@openzeppelin/contracts/utils/Counters.sol";
+import {IPool} from "@aave/core-v3/contracts/interfaces/IPool.sol";
 import "hardhat/console.sol";
 
 contract ProjectZ {
@@ -56,4 +56,12 @@ contract ProjectZ {
 
         agreement.seller.transfer(agreement.price);
     }
+
+    function supplyETH(address pool, address token, address user, uint256 amount) public {
+        IPool(pool).supply(token, amount, user, 0);
+    }
 }
+
+// Pool contract address: 0x368EedF3f56ad10b9bC57eed4Dac65B26Bb667f6
+// WETH token address: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+// WETH-AToken-Aave: 0x27B4692C93959048833f40702b22FE3578E77759
